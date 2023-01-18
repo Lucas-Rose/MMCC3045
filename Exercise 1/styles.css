@@ -1,0 +1,16 @@
+
+html{
+    background-color: grey;
+}
+#box{
+    width: 900px;
+    height: 450px;
+    background-color: white;
+    margin: auto;
+    position: relative;
+}
+#key{
+    position: absolute;
+    top:50px;
+    left:100px;
+}
