@@ -12,10 +12,11 @@
 
         //imports
         import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-        import { OrbitControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js";
         import { PointerLockControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/PointerLockControls.js"
+        import { GLTFLoader } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js"
 
         $('#test-text').hide()
+        $('#prompt').hide()
 
         //Essentials
         const scene = new THREE.Scene();
@@ -24,6 +25,27 @@
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
+
+        //Append 3D Models
+        const loader = new GLTFLoader();
+
+        loader.load('Models/Chair.glb', function (gltf) {
+
+            scene.add(gltf.scene);
+            gltf.scene.position.set(3, -.5, 0)
+            let geometry = new THREE.BoxGeometry(1,1,1);
+            let material = new THREE.MeshStandardMaterial({ color: new THREE.Color('white') });
+            let cube = new THREE.Mesh(geometry, material);
+            cube.position.set(gltf.scene.position.x, gltf.scene.position.y, gltf.scene.position.z)
+            cube.name = "interactable"
+            cube.visible = false
+            scene.add(cube);
+
+        }, undefined, function (error) {
+
+            console.error(error);
+
+        });
 
         //Movement Variables
         const controls = new PointerLockControls(camera, document.body);
@@ -38,7 +60,6 @@
             await document.body.requestPointerLock();
             cameraLock = true
             if(lookingAt == true){
-                console.log('object clicked')
                 $('#test-text').slideDown(500)
             }
         })
@@ -103,12 +124,13 @@
         {
             const pointLight = new THREE.PointLight(new THREE.Color('white'), 1, 100);
             pointLight.position.set(12, 25, 12);
+            pointLight.castShadow = true
             scene.add(pointLight);
         }
 
         //Ambient Light
         {
-            const ambientLight = new THREE.AmbientLight(new THREE.Color('white'), .25);
+            const ambientLight = new THREE.AmbientLight(new THREE.Color('white'), .15);
             scene.add(ambientLight);
         }
 
@@ -127,6 +149,7 @@
             let material = new THREE.MeshStandardMaterial({ color: new THREE.Color("darkgray") });
             let ground = new THREE.Mesh(geometry, material);
             ground.position.y = -0.5
+            ground.receiveShadow = true
             scene.add(ground);
         }
 
@@ -143,9 +166,10 @@
             const intersects = raycaster.intersectObjects(scene.children);
 
             for (let i = 0; i < scene.children.length; i++) {
-                if (scene.children[i].name == "interactable") {
+                if (scene.children[i].name == "interactable" ){
                     if (scene.children[i].material != null) {
                         scene.children[i].material.color.set(new THREE.Color('lightblue'))
+                        $('#prompt').hide()
                         lookingAt = false
                     }
                 }
@@ -154,6 +178,7 @@
             for (let i = 0; i < intersects.length; i++) {
                 if (intersects[i].object.name == "interactable") {
                     intersects[i].object.material.color.set(new THREE.Color('yellow'));
+                    $('#prompt').show()
                     lookingAt = true
                 }
             }
@@ -178,6 +203,7 @@
 
 <body>
     <h1 id="cursor">&#x2022;</h1>
+    <p id="prompt">Interact</p>
     <h1 id="test-text">This is some text</h1>
 </body>
 

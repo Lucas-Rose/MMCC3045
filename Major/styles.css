@@ -16,3 +16,10 @@ body{
     z-index: 5;
     color:white
 }
+#prompt{
+    position: absolute;
+    color:white;
+    left:50%;
+    top:52%;
+    transform:translate(-50%, -50%);
+}
