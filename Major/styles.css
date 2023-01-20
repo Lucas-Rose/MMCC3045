@@ -1,3 +1,18 @@
 body{
     margin:0
 }
+#cursor{
+    position: absolute;
+    color:white;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+    font-size: medium;
+}
+#test-text{
+    position: absolute;
+    top:50px;
+    left:100px;
+    z-index: 5;
+    color:white
+}
