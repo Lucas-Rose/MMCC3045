@@ -66,6 +66,41 @@
         loader.load('Models/cockpit.glb', function (gltf) {
             scene.add(gltf.scene);
             gltf.scene.position.set(1.2, 1, 5)
+
+            //Monitors
+        {
+            //Middle
+            let geometry = new THREE.BoxGeometry(.27, .225, .25);
+            let material = new THREE.MeshBasicMaterial({color:new THREE.Color("#003aff")})
+            let monitor = new THREE.Mesh(geometry, material);
+            monitor.position.set(.045, .6, 4.19)
+            monitor.rotation.set(-.6, 0, 0)
+            scene.add(monitor);
+
+            //left
+            geometry = new THREE.BoxGeometry(.19, .14, .23);
+            material = new THREE.MeshBasicMaterial({color:new THREE.Color("#003aff")})
+            monitor = new THREE.Mesh(geometry, material);
+            monitor.position.set(-.235, .63, 4.18)
+            monitor.rotation.set(-.6, 0, 0)
+            scene.add(monitor);
+
+            //right
+            geometry = new THREE.BoxGeometry(.19, .14, .25);
+            material = new THREE.MeshBasicMaterial({color:new THREE.Color("#003aff")})
+            monitor = new THREE.Mesh(geometry, material);
+            monitor.position.set(.42, .61, 4.18)
+            monitor.rotation.set(-.6, 0, 0)
+            scene.add(monitor);
+
+            //angle
+            geometry = new THREE.BoxGeometry(.19, .14, .16);
+            material = new THREE.MeshBasicMaterial({color:new THREE.Color("#003aff")})
+            monitor = new THREE.Mesh(geometry, material);
+            monitor.position.set(-.44, .54, 4.4)
+            monitor.rotation.set(-.5, .45, -.42)
+            scene.add(monitor);
+        }
         })
 
         //Movement Variables
