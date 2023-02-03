@@ -33,7 +33,7 @@
 
             scene.add(gltf.scene);
             gltf.scene.position.set(3, -.5, 0)
-            let geometry = new THREE.BoxGeometry(1,1,1);
+            let geometry = new THREE.BoxGeometry(1, 1, 1);
             let material = new THREE.MeshStandardMaterial({ color: new THREE.Color('white') });
             let cube = new THREE.Mesh(geometry, material);
             cube.position.set(gltf.scene.position.x, gltf.scene.position.y, gltf.scene.position.z)
@@ -41,11 +41,32 @@
             cube.visible = false
             scene.add(cube);
 
-        }, undefined, function (error) {
+        })
+        loader.load('Models/earth.glb', function (gltf) {
 
-            console.error(error);
+            scene.add(gltf.scene);
+            gltf.scene.position.set(0, 500, -650)
+            gltf.scene.rotation.set(.5, 53, 0)
+            gltf.scene.scale.set(.8, .8, .8)
+            let pointLight = new THREE.PointLight(new THREE.Color('white'), 2, 500);
+            pointLight.position.set(0, 350, -450);
+            pointLight.castShadow = true
+            scene.add(pointLight);
 
-        });
+        })
+        loader.load('Models/moon.glb', function (gltf) {
+            scene.add(gltf.scene);
+            gltf.scene.position.set(0, 500, 500)
+            gltf.scene.scale.set(50,50, 50)
+            let pointLight = new THREE.PointLight(new THREE.Color('white'), 2, 500);
+            pointLight.position.set(0, 350, 350);
+            pointLight.castShadow = true
+            scene.add(pointLight);
+        })
+        loader.load('Models/cockpit.glb', function (gltf) {
+            scene.add(gltf.scene);
+            gltf.scene.position.set(1.2, 1, 5)
+        })
 
         //Movement Variables
         const controls = new PointerLockControls(camera, document.body);
@@ -59,7 +80,7 @@
         document.body.addEventListener("click", async () => {
             await document.body.requestPointerLock();
             cameraLock = true
-            if(lookingAt == true){
+            if (lookingAt == true) {
                 $('#test-text').slideDown(500)
             }
         })
@@ -89,7 +110,7 @@
                     if (ySpeed > 0) {
                         ySpeed = 0
                     }
-                    else {
+                   else {
                         ySpeed = -speed
                     }
                 }
@@ -153,6 +174,44 @@
             scene.add(ground);
         }
 
+        //Stars
+        {
+            function getRandomStarField(numberOfStars, width, height) {
+                var canvas = document.createElement('CANVAS');
+
+                canvas.width = width;
+                canvas.height = height;
+
+                var ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, width, height);
+
+                for (var i = 0; i < numberOfStars; ++i) {
+                    var radius = Math.random() * 2;
+                    var x = Math.floor(Math.random() * width);
+                    var y = Math.floor(Math.random() * height);
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                }
+
+                var texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+            };
+
+            var skyBox = new THREE.BoxGeometry(1500, 1200, 1500);
+            var skyBoxMaterial = new THREE.MeshBasicMaterial({
+                map: getRandomStarField(600, 2048, 2048),
+                side: THREE.BackSide
+            });
+            var sky = new THREE.Mesh(skyBox, skyBoxMaterial);
+            scene.add(sky);
+        }
+
         //Raycasting
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2(0, 0);
@@ -166,7 +225,7 @@
             const intersects = raycaster.intersectObjects(scene.children);
 
             for (let i = 0; i < scene.children.length; i++) {
-                if (scene.children[i].name == "interactable" ){
+                if (scene.children[i].name == "interactable") {
                     if (scene.children[i].material != null) {
                         scene.children[i].material.color.set(new THREE.Color('lightblue'))
                         $('#prompt').hide()
