@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major</title>
+    <link rel="stylesheet" href="/Major/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script type="module">
+
+        //imports
+        import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+        import { PointerLockControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/PointerLockControls.js"
+        import { GLTFLoader } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js"
+
+        //Essentials
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.y = 0
+        camera.position.z = 0
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        $('#prompt').hide()
+
+        //Append 3D Models
+        const loader = new GLTFLoader();
+        loader.load('/Major/Models/moon.glb', function (gltf) {
+
+            scene.add(gltf.scene);
+            gltf.scene.position.set(0, 60, -400)
+            gltf.scene.scale.set(35, 35, 35)
+            gltf.scene.rotation.set(.3,0,0)
+        })
+        loader.load('/Major/Models/cockpit.glb', function (gltf) {
+                scene.add(gltf.scene);
+                gltf.scene.position.set(1.2, 0, 5.1)
+
+                //Block to cover the glass in the door
+                let geometry = new THREE.BoxGeometry(1, 1, 1);
+                let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("black") })
+                let curtain = new THREE.Mesh(geometry, material);
+                curtain.position.z = 6
+                curtain.position.x = .7
+                scene.add(curtain);
+
+                //Monitors
+                {
+                    //Middle
+                    let geometry = new THREE.BoxGeometry(.27, .225, .245);
+                    let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") }) //The commodore 64 blue
+                    let monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(.045, -.4, 4.29)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable middle-monitor"
+                    scene.add(monitor);
+
+                    //left
+                    geometry = new THREE.BoxGeometry(.19, .14, .23);
+                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(-.236, -.37, 4.28)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable left-monitor"
+                    scene.add(monitor);
+
+                    //right
+                    geometry = new THREE.BoxGeometry(.19, .14, .01);
+                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(.42, -.32, 4.38)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable right-monitor"
+                    scene.add(monitor);
+
+                    //angle
+                    geometry = new THREE.BoxGeometry(.19, .135, .16);
+                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(-.44, -.458, 4.51)
+                    monitor.rotation.set(-.5, .5, -.44)
+                    monitor.name = "interactable angle-monitor"
+                    scene.add(monitor);
+                }
+            })
+
+        //Movement Variables
+        const controls = new PointerLockControls(camera, document.body);
+        let cameraLock = false
+        let xSpeed = 0
+        let ySpeed = 0
+        let speed = .1
+        let lookingAt = false
+        let canMove = false
+
+        //Monitor Variables
+        let activeControls = [false, false, false, false, false]
+
+        //Enter Play / Click Events
+        document.body.addEventListener("click", async () => {
+            await document.body.requestPointerLock();
+            cameraLock = true
+            if (lookingAt == true) {
+                console.log(activeControls)
+                if(activeControls[1]){
+                    alert('angle monitor!')
+                }
+                if(activeControls[2]){
+                    alert('left monitor!')
+                }
+                if(activeControls[3]){
+                    alert('middle monitor!')
+                }
+                if(activeControls[4]){
+                    alert('right monitor!')
+                }
+            }
+        })
+
+        //MOVEMENT DETECTION
+        document.onkeydown = function (e) {
+                e = e || window.event;
+                if (canMove) {
+                    if (cameraLock == true) {
+                        if (e.code == "KeyW") {
+                            ySpeed = speed
+                        }
+                        if (e.code == "KeyS") {
+                            ySpeed = -speed
+                        }
+                        if (e.code == "KeyA") {
+                            xSpeed = -speed
+                        }
+                        if (e.code == "KeyD") {
+                            xSpeed = speed
+                        }
+                    }
+                }
+            };
+        document.onkeyup = function (e) {
+                e = e || window.event;
+                if (canMove) {
+                    if (cameraLock == true) {
+                        if (e.code == "KeyW") {
+                            if (ySpeed > 0) {
+                                ySpeed = 0
+                            }
+                            else {
+                                ySpeed = -speed
+                            }
+                        }
+                        if (e.code == "KeyS") {
+                            if (ySpeed < 0) {
+                                ySpeed = 0
+                            }
+                            else {
+                                ySpeed = speed
+                            }
+                        }
+                        if (e.code == "KeyA") {
+                            if (xSpeed < 0) {
+                                xSpeed = 0
+                            }
+                            else {
+                                xSpeed = speed
+                            }
+                        }
+                        if (e.code == "KeyD") {
+                            if (xSpeed > 0) {
+                                xSpeed = 0
+                            }
+                            else {
+                                xSpeed = -speed
+                            }
+                        }
+                    }
+                }
+            };
+
+        //Ambient Light
+        {
+            const ambientLight = new THREE.AmbientLight(new THREE.Color('white'), 1);
+            scene.add(ambientLight);
+        }
+
+        //Stars
+        {
+            function getRandomStarField(numberOfStars, width, height) {
+                var canvas = document.createElement('CANVAS');
+
+                canvas.width = width;
+                canvas.height = height;
+
+                var ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, width, height);
+
+                for (var i = 0; i < numberOfStars; ++i) {
+                    var radius = Math.random() * 2;
+                    var x = Math.floor(Math.random() * width);
+                    var y = Math.floor(Math.random() * height);
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                }
+
+                var texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+            };
+
+            var skyBox = new THREE.BoxGeometry(1500, 1200, 1500);
+            var skyBoxMaterial = new THREE.MeshBasicMaterial({
+                map: getRandomStarField(600, 2048, 2048),
+                side: THREE.BackSide
+            });
+            var sky = new THREE.Mesh(skyBox, skyBoxMaterial);
+            scene.add(sky);
+        }
+
+        //Raycasting
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2(0, 0);
+
+
+        //Raycasting mechanics
+        function render() {
+
+            // update the picking ray with the camera and pointer position (pointer will always be 0 regardless)
+            raycaster.setFromCamera(pointer, camera);
+
+            // calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObjects(scene.children);
+
+            for (let i = 0; i < scene.children.length; i++) {
+                if (scene.children[i].name.includes('interactable')) {
+                    if (scene.children[i].material != null) {
+                        $('#prompt').hide()
+                        lookingAt = false
+                        handleControls(scene.children[i].name, false)
+                    }
+                }
+            }
+
+            for (let i = 0; i < intersects.length; i++) {
+                if (intersects[i].object.name.includes("interactable")) {
+                    $('#prompt').show()
+                    lookingAt = true
+                    handleControls(intersects[i].object.name, true)
+                }
+            }
+
+            renderer.render(scene, camera);
+
+        }
+
+        function handleControls(name, mode){
+            if(mode){
+                if(name.includes("radio")){
+                    activeControls[0] = true
+                }
+                if(name.includes("angle-monitor")){
+                    activeControls[1] = true
+                }
+                if(name.includes("left-monitor")){
+                    activeControls[2] = true
+                }
+                if(name.includes("middle-monitor")){
+                    activeControls[3] = true
+                }
+                if(name.includes("left-monitor")){
+                    activeControls[4] = true
+                }
+            }
+            else{
+                if(name.includes("radio")){
+                    activeControls[0] = false
+                }
+                if(name.includes("angle-monitor")){
+                    activeControls[1] = false
+                }
+                if(name.includes("left-monitor")){
+                    activeControls[2] = false
+                }
+                if(name.includes("middle-monitor")){
+                    activeControls[3] = false
+                }
+                if(name.includes("left-monitor")){
+                    activeControls[4] = false
+                }
+            }
+        }
+
+        camera.position.z = 5;
+
+        function animate() {
+            controls.moveRight(xSpeed)
+            controls.moveForward(ySpeed)
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+            requestAnimationFrame(render);
+        };
+
+        animate();
+    </script>
+</head>
+
+<body>
+    <h1 id="cursor">&#x2022;</h1>
+    <p id="prompt">Interact</p>
+</body>
+
+</html>
