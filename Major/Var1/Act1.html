@@ -6,7 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Major</title>
-    <link rel="stylesheet" href="/Major/styles.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script type="module">
 
@@ -18,74 +21,11 @@
         //Essentials
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.y = 0
-        camera.position.z = 0
         const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
 
-        $('#prompt').hide()
-
-        //Append 3D Models
-        const loader = new GLTFLoader();
-        loader.load('/Major/Models/moon.glb', function (gltf) {
-
-            scene.add(gltf.scene);
-            gltf.scene.position.set(0, 60, -400)
-            gltf.scene.scale.set(35, 35, 35)
-            gltf.scene.rotation.set(.3,0,0)
-        })
-        loader.load('/Major/Models/cockpit.glb', function (gltf) {
-                scene.add(gltf.scene);
-                gltf.scene.position.set(1.2, 0, 5.1)
-
-                //Block to cover the glass in the door
-                let geometry = new THREE.BoxGeometry(1, 1, 1);
-                let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("black") })
-                let curtain = new THREE.Mesh(geometry, material);
-                curtain.position.z = 6
-                curtain.position.x = .7
-                scene.add(curtain);
-
-                //Monitors
-                {
-                    //Middle
-                    let geometry = new THREE.BoxGeometry(.27, .225, .245);
-                    let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") }) //The commodore 64 blue
-                    let monitor = new THREE.Mesh(geometry, material);
-                    monitor.position.set(.045, -.4, 4.29)
-                    monitor.rotation.set(-.6, 0, 0)
-                    monitor.name = "interactable middle-monitor"
-                    scene.add(monitor);
-
-                    //left
-                    geometry = new THREE.BoxGeometry(.19, .14, .23);
-                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
-                    monitor = new THREE.Mesh(geometry, material);
-                    monitor.position.set(-.236, -.37, 4.28)
-                    monitor.rotation.set(-.6, 0, 0)
-                    monitor.name = "interactable left-monitor"
-                    scene.add(monitor);
-
-                    //right
-                    geometry = new THREE.BoxGeometry(.19, .14, .01);
-                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
-                    monitor = new THREE.Mesh(geometry, material);
-                    monitor.position.set(.42, -.32, 4.38)
-                    monitor.rotation.set(-.6, 0, 0)
-                    monitor.name = "interactable right-monitor"
-                    scene.add(monitor);
-
-                    //angle
-                    geometry = new THREE.BoxGeometry(.19, .135, .16);
-                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
-                    monitor = new THREE.Mesh(geometry, material);
-                    monitor.position.set(-.44, -.458, 4.51)
-                    monitor.rotation.set(-.5, .5, -.44)
-                    monitor.name = "interactable angle-monitor"
-                    scene.add(monitor);
-                }
-            })
+        //Raycasting
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2(0, 0);
 
         //Movement Variables
         const controls = new PointerLockControls(camera, document.body);
@@ -96,93 +36,225 @@
         let lookingAt = false
         let canMove = false
 
-        //Monitor Variables
+        //Interactive Variables
         let activeControls = [false, false, false, false, false]
+        
+        //Dialog Variables
+        let dialog = [
+            "<p>This is some test text, it will act as dialog from the narrator and the player character.</p>",
+            "<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>",
+            "<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully this works.</p>"
+        ]
+        let dialogTime = [5000, 5000, 5000]
+        let dialogTimeIndex = 0
+        let dialogIndex = 0
+
+        //Radio Variables
+        let radioIndex = 0
+        let radioStations = document.getElementsByClassName('music')
+
+        function init(){
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        DisableRadio()
+        radioStations[radioIndex].volume = 0.03
+        }
+        
+        $(document).ready(function(){
+            $('#prompt').hide()
+            $('#curtain').fadeOut(6000)
+            var dialogTimer = setInterval(ChangeText, dialogTime[dialogTimeIndex])
+        })
+
+        //Radio Controls
+        function DisableRadio() {
+            for (let i = 0; i < radioStations.length; i++) {
+                radioStations[i].volume = 0
+            }
+        }
+        function ChangeStation(){
+            DisableRadio()
+            if(radioIndex >= radioStations.length-1){
+                radioIndex = 0
+            }
+            else{
+                radioIndex++
+            }
+            radioStations[radioIndex].volume = 0.03
+        }
+
+        //Append 3D Models
+        {
+            const loader = new GLTFLoader();
+            loader.load('/Models/moon.glb', function (gltf) {
+
+                scene.add(gltf.scene);
+                gltf.scene.position.set(0, 60, -400)
+                gltf.scene.scale.set(20, 20, 20)
+                gltf.scene.rotation.set(.3, 0, 0)
+                let pointLight = new THREE.PointLight(new THREE.Color('white'), 2, 500);
+                pointLight.position.set(0, 60, -300);
+                pointLight.castShadow = true
+                scene.add(pointLight);
+
+            })
+            loader.load('/Models/cockpit.glb', function (gltf) {
+                scene.add(gltf.scene);
+                gltf.scene.position.set(1.2, 0, 0.1)
+
+                //Block to cover the glass in the door
+                let geometry = new THREE.BoxGeometry(1, 1, 1);
+                let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("black") })
+                let curtain = new THREE.Mesh(geometry, material);
+                curtain.position.z = 1
+                curtain.position.x = .7
+                scene.add(curtain);
+
+                geometry = new THREE.BoxGeometry(.2, .2, .25);
+                material = new THREE.MeshBasicMaterial({ color: new THREE.Color("blue") })
+                let radio = new THREE.Mesh(geometry, material);
+                radio.position.set(-.5,-.6,-.15)
+                radio.rotation.set(.18, 0, -.4)
+                radio.name = "interactable radio"
+                radio.visible = false
+                scene.add(radio);
+
+                //Monitors
+                {
+                    //Middle
+                    let geometry = new THREE.BoxGeometry(.27, .225, .245);
+                    let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") }) //The commodore 64 blue
+                    let monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(.045, -.4, -0.71)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable middle-monitor"
+                    scene.add(monitor);
+
+                    //left
+                    geometry = new THREE.BoxGeometry(.19, .14, .23);
+                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(-.236, -.37, -0.72)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable left-monitor"
+                    scene.add(monitor);
+
+                    //right
+                    geometry = new THREE.BoxGeometry(.19, .14, .01);
+                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(.42, -.32, -.62)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable right-monitor"
+                    scene.add(monitor);
+
+                    //angle
+                    geometry = new THREE.BoxGeometry(.19, .135, .16);
+                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(-.44, -.458, -.49)
+                    monitor.rotation.set(-.5, .5, -.44)
+                    monitor.name = "interactable angle-monitor"
+                    scene.add(monitor);
+                }
+            })
+        }
 
         //Enter Play / Click Events
         document.body.addEventListener("click", async () => {
             await document.body.requestPointerLock();
             cameraLock = true
             if (lookingAt == true) {
-                console.log(activeControls)
-                if(activeControls[1]){
-                    alert('angle monitor!')
+                if(activeControls[0]){
+                    ChangeStation()
                 }
-                if(activeControls[2]){
-                    alert('left monitor!')
+                if (activeControls[1]) {
+                    console.log('angle monitor')
                 }
-                if(activeControls[3]){
-                    alert('middle monitor!')
+                if (activeControls[2]) {
+                    console.log('left monitor')
                 }
-                if(activeControls[4]){
-                    alert('right monitor!')
+                if (activeControls[3]) {
+                    console.log('middle monitor')
+                }
+                if (activeControls[4]) {
+                    console.log('right monitor')
                 }
             }
         })
 
-        //MOVEMENT DETECTION
+        //Movement Detection
         document.onkeydown = function (e) {
-                e = e || window.event;
-                if (canMove) {
-                    if (cameraLock == true) {
-                        if (e.code == "KeyW") {
-                            ySpeed = speed
+            e = e || window.event;
+            if (canMove) {
+                if (cameraLock == true) {
+                    if (e.code == "KeyW") {
+                        ySpeed = speed
+                    }
+                    if (e.code == "KeyS") {
+                        ySpeed = -speed
+                    }
+                    if (e.code == "KeyA") {
+                        xSpeed = -speed
+                    }
+                    if (e.code == "KeyD") {
+                        xSpeed = speed
+                    }
+                }
+            }
+        };
+        document.onkeyup = function (e) {
+            e = e || window.event;
+            if (canMove) {
+                if (cameraLock == true) {
+                    if (e.code == "KeyW") {
+                        if (ySpeed > 0) {
+                            ySpeed = 0
                         }
-                        if (e.code == "KeyS") {
+                        else {
                             ySpeed = -speed
                         }
-                        if (e.code == "KeyA") {
-                            xSpeed = -speed
+                    }
+                    if (e.code == "KeyS") {
+                        if (ySpeed < 0) {
+                            ySpeed = 0
                         }
-                        if (e.code == "KeyD") {
+                        else {
+                            ySpeed = speed
+                        }
+                    }
+                    if (e.code == "KeyA") {
+                        if (xSpeed < 0) {
+                            xSpeed = 0
+                        }
+                        else {
                             xSpeed = speed
                         }
                     }
-                }
-            };
-        document.onkeyup = function (e) {
-                e = e || window.event;
-                if (canMove) {
-                    if (cameraLock == true) {
-                        if (e.code == "KeyW") {
-                            if (ySpeed > 0) {
-                                ySpeed = 0
-                            }
-                            else {
-                                ySpeed = -speed
-                            }
+                    if (e.code == "KeyD") {
+                        if (xSpeed > 0) {
+                            xSpeed = 0
                         }
-                        if (e.code == "KeyS") {
-                            if (ySpeed < 0) {
-                                ySpeed = 0
-                            }
-                            else {
-                                ySpeed = speed
-                            }
-                        }
-                        if (e.code == "KeyA") {
-                            if (xSpeed < 0) {
-                                xSpeed = 0
-                            }
-                            else {
-                                xSpeed = speed
-                            }
-                        }
-                        if (e.code == "KeyD") {
-                            if (xSpeed > 0) {
-                                xSpeed = 0
-                            }
-                            else {
-                                xSpeed = -speed
-                            }
+                        else {
+                            xSpeed = -speed
                         }
                     }
                 }
-            };
+            }
+        };
+
+        function ChangeText(){
+            if(dialogIndex >= dialog.length){
+                return
+            }
+            let contentBox = document.getElementById('dialog-content')
+            contentBox.innerHTML = dialog[dialogIndex]
+            dialogIndex ++
+        }
 
         //Ambient Light
         {
-            const ambientLight = new THREE.AmbientLight(new THREE.Color('white'), 1);
+            const ambientLight = new THREE.AmbientLight(new THREE.Color('white'), .2);
             scene.add(ambientLight);
         }
 
@@ -224,11 +296,6 @@
             scene.add(sky);
         }
 
-        //Raycasting
-        const raycaster = new THREE.Raycaster();
-        const pointer = new THREE.Vector2(0, 0);
-
-
         //Raycasting mechanics
         function render() {
 
@@ -260,44 +327,42 @@
 
         }
 
-        function handleControls(name, mode){
-            if(mode){
-                if(name.includes("radio")){
+        function handleControls(name, mode) {
+            if (mode) {
+                if (name.includes("radio")) {
                     activeControls[0] = true
                 }
-                if(name.includes("angle-monitor")){
+                if (name.includes("angle-monitor")) {
                     activeControls[1] = true
                 }
-                if(name.includes("left-monitor")){
+                if (name.includes("left-monitor")) {
                     activeControls[2] = true
                 }
-                if(name.includes("middle-monitor")){
+                if (name.includes("middle-monitor")) {
                     activeControls[3] = true
                 }
-                if(name.includes("left-monitor")){
+                if (name.includes("right-monitor")) {
                     activeControls[4] = true
                 }
             }
-            else{
-                if(name.includes("radio")){
+            else {
+                if (name.includes("radio")) {
                     activeControls[0] = false
                 }
-                if(name.includes("angle-monitor")){
+                if (name.includes("angle-monitor")) {
                     activeControls[1] = false
                 }
-                if(name.includes("left-monitor")){
+                if (name.includes("left-monitor")) {
                     activeControls[2] = false
                 }
-                if(name.includes("middle-monitor")){
+                if (name.includes("middle-monitor")) {
                     activeControls[3] = false
                 }
-                if(name.includes("left-monitor")){
+                if (name.includes("right-monitor")) {
                     activeControls[4] = false
                 }
             }
         }
-
-        camera.position.z = 5;
 
         function animate() {
             controls.moveRight(xSpeed)
@@ -306,14 +371,20 @@
             requestAnimationFrame(animate);
             requestAnimationFrame(render);
         };
-
+        
+        init();
         animate();
     </script>
 </head>
 
 <body>
+    <div id="curtain"></div>
     <h1 id="cursor">&#x2022;</h1>
     <p id="prompt">Interact</p>
+    <div id="dialog-content"></div>
+    <audio autoplay loop class="music"><source src="/Music/Space Oddity (2015 Remaster).mp3" type="audio/mp3"></audio>
+    <audio autoplay loop class="music"><source src="/Music/Dobie Gray - Drift Away (Original Official Video).mp3" type="audio/mp3"></audio>
+    <audio id="mute-station"class="music"><source src="" type=""></audio>
 </body>
 
 </html>
