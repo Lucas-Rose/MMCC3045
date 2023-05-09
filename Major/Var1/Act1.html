@@ -39,14 +39,19 @@
         //Interactive Variables
         let activeControls = [false, false, false, false, false]
         let monitors = []
-        let monitorColors = [new THREE.Color("#003aff"), new THREE.Color("green"), new THREE.Color("red")]
+
+        let monitorCounters = []
+        let monitorTimer = 0;
+        let timerMultiplier = 20;
+
+        let monitorColors = [ new THREE.Color("red"), new THREE.Color("green"), new THREE.Color("#003aff")]
         
         //Dialog Variables
         let dialog = [
-            "<p>This is some test text, it will act as dialog from the narrator and the player character.</p>",
-            "<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>",
-            "<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully this works.</p>",
-            "<p>Try using the radio underneath the <strong>far left monitor</strong> to change the radio station, cycle through to find the muted channel aswell.</p>"
+            new dialogueItem("<p>This is some test text, it will act as dialog from the narrator and the player character.</p>", false),
+            new dialogueItem("<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>", false),
+            new dialogueItem("<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully this works.</p>", true),
+            new dialogueItem("<p>Try using the radio underneath the <strong>far left monitor</strong> to change the radio station, cycle through to find the muted channel aswell.</p>", false)
         ]
         let dialogTime = [5000, 5000, 5000]
         let dialogTimeIndex = 0
@@ -61,6 +66,9 @@
         document.body.appendChild(renderer.domElement);
         DisableRadio()
         radioStations[radioIndex].volume = 0.03
+
+        monitorTimer = Math.random() * 20;
+        console.log("Timer: " + monitorTimer);
         }
         
         $(document).ready(function(){
@@ -85,11 +93,25 @@
             }
             radioStations[radioIndex].volume = 0.03
         }
-        function ChangeColors(index){
-            if(index >= monitorColors.length - 1){
-                monitors[index].material = new THREE.MeshBasicMaterial()
+        function ChangeColors(monitorIndex, colorIndex){
+            if(colorIndex >= monitorColors.length){
+                console.log("colour selected out of range")
             }
-            //monitors[index].material = new THREE.MeshBasicMaterial(color:monitorColors[index+1])
+            if(monitorIndex >= monitors.length){
+                console.log("monitor out of range");
+            }
+            monitorTimer = Math.random() * 20;
+            monitorCounters[monitorIndex] = monitorTimer;
+            monitors[monitorIndex].material = new THREE.MeshBasicMaterial({color:monitorColors[colorIndex]})
+        }
+
+        function CheckTimers(){
+            for(let i = 0; i < monitorCounters.length; i ++){
+                if(monitorCounters[i] <= 0){
+                    return false
+                }
+            }
+            return true
         }
 
         //Append 3D Models
@@ -132,45 +154,47 @@
                 {
                     //angle
                     let geometry = new THREE.BoxGeometry(.19, .135, .16);
-                    let material = new THREE.MeshBasicMaterial({ color: monitorColors[0] })
+                    let material = new THREE.MeshBasicMaterial({ color: monitorColors[2] })
                     let monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(-.44, -.458, -.49)
                     monitor.rotation.set(-.5, .5, -.44)
                     monitor.name = "interactable angle-monitor"
                     scene.add(monitor);
                     monitors.push(monitor)
+                    monitorCounters.push(monitorTimer)
 
                     //left
                     geometry = new THREE.BoxGeometry(.19, .14, .23);
-                    material = new THREE.MeshBasicMaterial({ color: monitorColors[0] })
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2]})
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(-.236, -.37, -0.72)
                     monitor.rotation.set(-.6, 0, 0)
                     monitor.name = "interactable left-monitor"
                     scene.add(monitor);
                     monitors.push(monitor)
+                    monitorCounters.push(monitorTimer)
 
                     //Middle
                     geometry = new THREE.BoxGeometry(.27, .225, .245);
-                    material = new THREE.MeshBasicMaterial({ color: monitorColors[0]}) //The commodore 64 blue
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2]}) //The commodore 64 blue
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(.045, -.4, -0.71)
                     monitor.rotation.set(-.6, 0, 0)
                     monitor.name = "interactable middle-monitor"
                     scene.add(monitor);
                     monitors.push(monitor)
-
-                   
+                    monitorCounters.push(monitorTimer)
 
                     //right
                     geometry = new THREE.BoxGeometry(.19, .14, .01);
-                    material = new THREE.MeshBasicMaterial({ color: monitorColors[0]})
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2]})
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(.42, -.32, -.62)
                     monitor.rotation.set(-.6, 0, 0)
                     monitor.name = "interactable right-monitor"
                     scene.add(monitor);
                     monitors.push(monitor)
+                    monitorCounters.push(monitorTimer)
                 }
             })
         }
@@ -184,20 +208,16 @@
                     ChangeStation()
                 }
                 if (activeControls[1]) {
-                    console.log('angle monitor')
-                    ChangeColors(0)
+                    ChangeColors(0, 2)
                 }
                 if (activeControls[2]) {
-                    console.log('left monitor')
-                    ChangeColors(1)
+                    ChangeColors(1, 2)
                 }
                 if (activeControls[3]) {
-                    console.log('middle monitor')
-                    ChangeColors(2)
+                    ChangeColors(2, 2)
                 }
                 if (activeControls[4]) {
-                    console.log('right monitor')
-                    ChangeColors(3)
+                    ChangeColors(3, 2)
                 }
             }
         })
@@ -205,6 +225,10 @@
         //Movement Detection
         document.onkeydown = function (e) {
             e = e || window.event;
+            if(e.code == "Space"){
+                console.log(CheckTimers());
+            }
+
             if (canMove) {
                 if (cameraLock == true) {
                     if (e.code == "KeyW") {
@@ -387,12 +411,32 @@
             controls.moveRight(xSpeed)
             controls.moveForward(ySpeed)
             renderer.render(scene, camera);
+
+            for(let i = 0; i < monitorCounters.length; i ++){
+                monitorCounters[i] -= 0.05;
+                if(monitorCounters[i] < 0){
+                    monitors[i].material = new THREE.MeshBasicMaterial({color:monitorColors[0]})
+                }
+            }
+
             requestAnimationFrame(animate);
             requestAnimationFrame(render);
         };
         
+        //CLASSES
+        class dialogueItem{
+            constructor(text, auto){
+                this.text = text;
+                this.auto = auto
+            }
+        }
+
         init();
         animate();
+
+       
+
+
     </script>
 </head>
 
