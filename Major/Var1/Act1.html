@@ -38,12 +38,15 @@
 
         //Interactive Variables
         let activeControls = [false, false, false, false, false]
+        let monitors = []
+        let monitorColors = [new THREE.Color("#003aff"), new THREE.Color("green"), new THREE.Color("red")]
         
         //Dialog Variables
         let dialog = [
             "<p>This is some test text, it will act as dialog from the narrator and the player character.</p>",
             "<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>",
-            "<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully this works.</p>"
+            "<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully this works.</p>",
+            "<p>Try using the radio underneath the <strong>far left monitor</strong> to change the radio station, cycle through to find the muted channel aswell.</p>"
         ]
         let dialogTime = [5000, 5000, 5000]
         let dialogTimeIndex = 0
@@ -81,6 +84,12 @@
                 radioIndex++
             }
             radioStations[radioIndex].volume = 0.03
+        }
+        function ChangeColors(index){
+            if(index >= monitorColors.length - 1){
+                monitors[index].material = new THREE.MeshBasicMaterial()
+            }
+            //monitors[index].material = new THREE.MeshBasicMaterial(color:monitorColors[index+1])
         }
 
         //Append 3D Models
@@ -121,41 +130,47 @@
 
                 //Monitors
                 {
-                    //Middle
-                    let geometry = new THREE.BoxGeometry(.27, .225, .245);
-                    let material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") }) //The commodore 64 blue
+                    //angle
+                    let geometry = new THREE.BoxGeometry(.19, .135, .16);
+                    let material = new THREE.MeshBasicMaterial({ color: monitorColors[0] })
                     let monitor = new THREE.Mesh(geometry, material);
-                    monitor.position.set(.045, -.4, -0.71)
-                    monitor.rotation.set(-.6, 0, 0)
-                    monitor.name = "interactable middle-monitor"
+                    monitor.position.set(-.44, -.458, -.49)
+                    monitor.rotation.set(-.5, .5, -.44)
+                    monitor.name = "interactable angle-monitor"
                     scene.add(monitor);
+                    monitors.push(monitor)
 
                     //left
                     geometry = new THREE.BoxGeometry(.19, .14, .23);
-                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[0] })
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(-.236, -.37, -0.72)
                     monitor.rotation.set(-.6, 0, 0)
                     monitor.name = "interactable left-monitor"
                     scene.add(monitor);
+                    monitors.push(monitor)
+
+                    //Middle
+                    geometry = new THREE.BoxGeometry(.27, .225, .245);
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[0]}) //The commodore 64 blue
+                    monitor = new THREE.Mesh(geometry, material);
+                    monitor.position.set(.045, -.4, -0.71)
+                    monitor.rotation.set(-.6, 0, 0)
+                    monitor.name = "interactable middle-monitor"
+                    scene.add(monitor);
+                    monitors.push(monitor)
+
+                   
 
                     //right
                     geometry = new THREE.BoxGeometry(.19, .14, .01);
-                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[0]})
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(.42, -.32, -.62)
                     monitor.rotation.set(-.6, 0, 0)
                     monitor.name = "interactable right-monitor"
                     scene.add(monitor);
-
-                    //angle
-                    geometry = new THREE.BoxGeometry(.19, .135, .16);
-                    material = new THREE.MeshBasicMaterial({ color: new THREE.Color("#003aff") })
-                    monitor = new THREE.Mesh(geometry, material);
-                    monitor.position.set(-.44, -.458, -.49)
-                    monitor.rotation.set(-.5, .5, -.44)
-                    monitor.name = "interactable angle-monitor"
-                    scene.add(monitor);
+                    monitors.push(monitor)
                 }
             })
         }
@@ -170,15 +185,19 @@
                 }
                 if (activeControls[1]) {
                     console.log('angle monitor')
+                    ChangeColors(0)
                 }
                 if (activeControls[2]) {
                     console.log('left monitor')
+                    ChangeColors(1)
                 }
                 if (activeControls[3]) {
                     console.log('middle monitor')
+                    ChangeColors(2)
                 }
                 if (activeControls[4]) {
                     console.log('right monitor')
+                    ChangeColors(3)
                 }
             }
         })
