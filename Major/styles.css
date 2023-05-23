@@ -59,3 +59,61 @@ red{
 p{
     text-align:center
 }
+h1{
+    font-family: 'Courier New';
+    text-align: center;
+    position: relative;
+    font-size: 120px;
+    color:rgb(255, 255, 255);
+    top:20%;
+}
+#mainBG{
+    position: absolute;
+    width:100%;
+    height:100%;
+    background-color: rgb(1, 1, 1);
+    background-image:url("/images/stars.jpg");
+}
+#playButton{
+    width:20%;
+    height:10%;
+    background-color:white;
+    position:absolute;
+    left:50%;
+    top:75%;
+    transform:translate(-50%, -50%);
+}
+.box{
+    width:5%;
+    height:10%;
+    background-color: white;
+    position:absolute;
+    top:55%;
+    transform:translate(-50%, -50%);
+}
+#box1{
+    left:33%;
+}
+#box2{
+    left:50%;
+}
+#box3{
+    left:66%;
+}
+.box h1{
+    font-size: xx-large;
+    color:black;
+    position: relative;
+    top:32%;
+    left:50%;
+    transform:translate(-50%, -50%);
+}
+#playButton h1{
+    font-size: xx-large;
+    color:black;
+    position: relative;
+    top:10%;
+}
+#playButton :hover{
+    cursor:pointer;
+}
