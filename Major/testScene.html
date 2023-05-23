@@ -104,6 +104,13 @@
         }
         })
 
+        loader.load('Models/explosion.glb', function (gltf) {
+            scene.add(gltf.scene);
+            gltf.scene.position.set(0, 450, -500)
+            gltf.scene.scale.set(15, 15, 15)
+            gltf.scene.rotation.set(Math.PI, 0, 0)
+        })
+
         //Movement Variables
         const controls = new PointerLockControls(camera, document.body);
         let cameraLock = false

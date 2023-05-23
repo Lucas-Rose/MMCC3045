@@ -57,26 +57,14 @@
 
         //Dialog Variables
         let dialog = [
-            new dialogueItem("<p>Good Morning Major Tom! This is ground control back on Earth, can you hear us okay?</p>", true),
-            new dialogueItem("We're glad to see you've had a good rest, and are able to continue on with the mission.</p>", true),
-            new dialogueItem("<p>The <strong>Lunar Colony</strong> we established back in '23 has been having some troubles with the Time Control team, could never seem to get the anomaly detection working, so they need your help to get the generator back up.</p>", true),
-            new dialogueItem("<p>Couple of things we need you to do as you approach the Lunar Colony.</p>", true),
-            new dialogueItem("<p>The monitors you see in front of you need to be kept <blue>blue</blue>", true),
-            new dialogueItem("<p>As they appear <red>red,</red> go ahead and touch them to turn them back to their operating colour.</p>", true),
-            new dialogueItem("<p>Keeping all the monitors blue at the same time will ensure your smooth journey towards the Lunar Colony.</p>", true),
-            new dialogueItem("<p>Great job Major Tom! Just like that.</p>", false),
-            new dialogueItem("<p>Also! Just to your left you will find your radio, give that a touch to change between your favourite intergalactic space radio stations!", true),
-            new dialogueItem("<p>Flick through all the channels to turn the radio off if you would like to do that also.</p>", true),
-            new dialogueItem("<p>Back to the mission.</p>", true),
-            new dialogueItem("<p>The Time Control team have been noticing strange things happening on the Lunar Colony</p>", false),
-            new dialogueItem("<p>They report frequent encounters of De-ja-vu, whatever the hell that means...", true),
-            new dialogueItem("<p>Reports read that astronauts are waking up in the morning, seeing events that occured yesterday happen again in the same nature, however in a different order</p>", true),
-            new dialogueItem("<p>Sounds like balogna to me...</p>", true),
-            new dialogueItem("<p>Anyway... General John still thinks its a good idea for you to go check it out, sort out the town and those labs</p>", false),
-            new dialogueItem("<p>Your ship is just about ready for the entry into the Moon's new man-made atmosphere.", true),
-            new dialogueItem("<p>Preparing final measures and checks, ensuring SS5 is ready to land.", true),
-            new dialogueItem("<p>Good luck out there Tom...</p>", false),
-
+            new dialogueItem("<p>Great Work Major Tom, that seems to have solved the problems that the Lunar Colony were facing.</p>", true),
+            new dialogueItem("<p>All vital signs are operative and the generator seems to be functioning as it should be...</p>", true),
+            new dialogueItem("<p>You've done our country proud Major Tom.</p>", true),
+            new dialogueItem("<p>It is with great pity that we regret to inform you the real intentions behind the mission...", false),
+            new dialogueItem("<p>During the '23 Lunar Colony, world leaders had agreed that this was mankinds final chance at continuing the human race.", true),
+            new dialogueItem("<p>That being said, for those who opposed, they were provided the opportunity to join the Lunar Colony, or to perish on earth.</p>", true),
+            new dialogueItem("<p>For those that opted to stay, meant they knew that once this mission had been completed, all life on earth would be terminated...</p>", true),
+            new dialogueItem("<p>It was a pleasure working with you Tom, stay safe out there...", false),
         ]
 
         let dialogTime = [5000, 5000, 5000]
@@ -105,6 +93,7 @@
         $(document).ready(function () {
             $('#prompt').hide()
             $('#curtain').fadeOut(6000)
+            $('#flash').hide();
             var dialogTimer = setInterval(ChangeText, dialogTime[dialogTimeIndex])
         })
 
@@ -145,14 +134,15 @@
             return true
         }
 
+        const loader = new GLTFLoader();
         //Append 3D Models
         {
-            const loader = new GLTFLoader();
-            loader.load('/Models/moon.glb', function (gltf) {
+            
+            loader.load('/Models/earth.glb', function (gltf) {
 
                 scene.add(gltf.scene);
                 gltf.scene.position.set(0, 60, -400)
-                gltf.scene.scale.set(20, 20, 20)
+                gltf.scene.scale.set(0.8, 0.8, 0.8)
                 gltf.scene.rotation.set(.3, 0, 0)
                 let pointLight = new THREE.PointLight(new THREE.Color('white'), 2, 500);
                 pointLight.position.set(0, 60, -300);
@@ -160,6 +150,7 @@
                 scene.add(pointLight);
 
             })
+
             loader.load('/Models/cockpit.glb', function (gltf) {
                 scene.add(gltf.scene);
                 gltf.scene.position.set(1.2, 0, 0.1)
@@ -342,7 +333,15 @@
         }
 
         function EndSequence() {
-            $("#curtain").fadeIn(5000, function(){window.location.href = "https://google.com"})
+            $("#flash").fadeIn(100, function () {
+                loader.load('/Models/explosion.glb', function (gltf) {
+                        scene.add(gltf.scene);
+                        gltf.scene.position.set(0, 50, -400)
+                        gltf.scene.scale.set(15, 15, 15)
+                        gltf.scene.rotation.set(Math.PI/2, 0, 0)
+                    })
+                $('#flash').fadeOut(3000)
+            })
         }
 
         //Ambient Light
@@ -486,15 +485,17 @@
 
 <body>
     <div id="curtain"></div>
+    <div id="flash"></div>
     <h1 id="cursor">&#x2022;</h1>
     <p id="prompt">Interact</p>
     <div id="dialog-content"></div>
     <audio autoplay loop class="music">
-        <source src="/Music/Space Oddity (2015 Remaster).mp3" type="audio/mp3">
-    </audio>
-    <audio autoplay loop class="music">
         <source src="/Music/Dobie Gray - Drift Away (Original Official Video).mp3" type="audio/mp3">
     </audio>
+    <audio autoplay loop class="music">
+        <source src="/Music/Space Oddity (2015 Remaster).mp3" type="audio/mp3">
+    </audio>
+    
     <audio id="mute-station" class="music">
         <source src="" type="">
     </audio>
