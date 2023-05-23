@@ -13,6 +13,15 @@
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script type="module">
 
+        //CLASSES
+        class dialogueItem {
+            constructor(text, auto) {
+                this.text = text;
+                this.auto = auto
+            }
+        }
+
+
         //imports
         import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
         import { PointerLockControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/PointerLockControls.js"
@@ -44,34 +53,35 @@
         let monitorTimer = 0;
         let timerMultiplier = 20;
 
-        let monitorColors = [ new THREE.Color("red"), new THREE.Color("green"), new THREE.Color("#003aff")]
-        
+        let monitorColors = [new THREE.Color("red"), new THREE.Color("green"), new THREE.Color("#003aff")]
+
         //Dialog Variables
         let dialog = [
             new dialogueItem("<p>This is some test text, it will act as dialog from the narrator and the player character.</p>", false),
-            new dialogueItem("<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>", false),
-            new dialogueItem("<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully this works.</p>", true),
-            new dialogueItem("<p>Try using the radio underneath the <strong>far left monitor</strong> to change the radio station, cycle through to find the muted channel aswell.</p>", false)
+            new dialogueItem("<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>", true),
+            new dialogueItem("<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully thi s works.</p>", false),
+            new dialogueItem("<p>Try using the radio underneath the <strong>far left monitor</strong> to change the radio station, cycle through to find the muted channel aswell.</p>", true)
         ]
         let dialogTime = [5000, 5000, 5000]
         let dialogTimeIndex = 0
         let dialogIndex = 0
+        let triggerMet = false;
 
         //Radio Variables
         let radioIndex = 0
         let radioStations = document.getElementsByClassName('music')
 
-        function init(){
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        DisableRadio()
-        radioStations[radioIndex].volume = 0.03
+        function init() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            DisableRadio()
+            radioStations[radioIndex].volume = 0.03
 
-        monitorTimer = Math.random() * 20;
-        console.log("Timer: " + monitorTimer);
+            monitorTimer = Math.random() * 20;
+            console.log("Timer: " + monitorTimer);
         }
-        
-        $(document).ready(function(){
+
+        $(document).ready(function () {
             $('#prompt').hide()
             $('#curtain').fadeOut(6000)
             var dialogTimer = setInterval(ChangeText, dialogTime[dialogTimeIndex])
@@ -83,31 +93,31 @@
                 radioStations[i].volume = 0
             }
         }
-        function ChangeStation(){
+        function ChangeStation() {
             DisableRadio()
-            if(radioIndex >= radioStations.length-1){
+            if (radioIndex >= radioStations.length - 1) {
                 radioIndex = 0
             }
-            else{
+            else {
                 radioIndex++
             }
             radioStations[radioIndex].volume = 0.03
         }
-        function ChangeColors(monitorIndex, colorIndex){
-            if(colorIndex >= monitorColors.length){
+        function ChangeColors(monitorIndex, colorIndex) {
+            if (colorIndex >= monitorColors.length) {
                 console.log("colour selected out of range")
             }
-            if(monitorIndex >= monitors.length){
+            if (monitorIndex >= monitors.length) {
                 console.log("monitor out of range");
             }
             monitorTimer = Math.random() * 20;
             monitorCounters[monitorIndex] = monitorTimer;
-            monitors[monitorIndex].material = new THREE.MeshBasicMaterial({color:monitorColors[colorIndex]})
+            monitors[monitorIndex].material = new THREE.MeshBasicMaterial({ color: monitorColors[colorIndex] })
         }
 
-        function CheckTimers(){
-            for(let i = 0; i < monitorCounters.length; i ++){
-                if(monitorCounters[i] <= 0){
+        function CheckTimers() {
+            for (let i = 0; i < monitorCounters.length; i++) {
+                if (monitorCounters[i] <= 0) {
                     return false
                 }
             }
@@ -144,7 +154,7 @@
                 geometry = new THREE.BoxGeometry(.2, .2, .25);
                 material = new THREE.MeshBasicMaterial({ color: new THREE.Color("blue") })
                 let radio = new THREE.Mesh(geometry, material);
-                radio.position.set(-.5,-.6,-.15)
+                radio.position.set(-.5, -.6, -.15)
                 radio.rotation.set(.18, 0, -.4)
                 radio.name = "interactable radio"
                 radio.visible = false
@@ -165,7 +175,7 @@
 
                     //left
                     geometry = new THREE.BoxGeometry(.19, .14, .23);
-                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2]})
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2] })
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(-.236, -.37, -0.72)
                     monitor.rotation.set(-.6, 0, 0)
@@ -176,7 +186,7 @@
 
                     //Middle
                     geometry = new THREE.BoxGeometry(.27, .225, .245);
-                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2]}) //The commodore 64 blue
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2] }) //The commodore 64 blue
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(.045, -.4, -0.71)
                     monitor.rotation.set(-.6, 0, 0)
@@ -187,7 +197,7 @@
 
                     //right
                     geometry = new THREE.BoxGeometry(.19, .14, .01);
-                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2]})
+                    material = new THREE.MeshBasicMaterial({ color: monitorColors[2] })
                     monitor = new THREE.Mesh(geometry, material);
                     monitor.position.set(.42, -.32, -.62)
                     monitor.rotation.set(-.6, 0, 0)
@@ -204,7 +214,7 @@
             await document.body.requestPointerLock();
             cameraLock = true
             if (lookingAt == true) {
-                if(activeControls[0]){
+                if (activeControls[0]) {
                     ChangeStation()
                 }
                 if (activeControls[1]) {
@@ -225,10 +235,6 @@
         //Movement Detection
         document.onkeydown = function (e) {
             e = e || window.event;
-            if(e.code == "Space"){
-                console.log(CheckTimers());
-            }
-
             if (canMove) {
                 if (cameraLock == true) {
                     if (e.code == "KeyW") {
@@ -286,13 +292,23 @@
             }
         };
 
-        function ChangeText(){
-            if(dialogIndex >= dialog.length){
+        function ChangeText() {
+            if (dialogIndex >= dialog.length) {
                 return
             }
-            let contentBox = document.getElementById('dialog-content')
-            contentBox.innerHTML = dialog[dialogIndex]
-            dialogIndex ++
+            if (dialog[dialogIndex].auto) {
+                let contentBox = document.getElementById('dialog-content')
+                contentBox.innerHTML = dialog[dialogIndex].text;
+                dialogIndex++;
+            }
+            else {
+                if (triggerMet) {
+                    let contentBox = document.getElementById('dialog-content')
+                    contentBox.innerHTML = dialog[dialogIndex].text;
+                    dialogIndex++;
+                    triggerMet = false;
+                }
+            }
         }
 
         //Ambient Light
@@ -367,7 +383,6 @@
             }
 
             renderer.render(scene, camera);
-
         }
 
         function handleControls(name, mode) {
@@ -412,29 +427,27 @@
             controls.moveForward(ySpeed)
             renderer.render(scene, camera);
 
-            for(let i = 0; i < monitorCounters.length; i ++){
+            for (let i = 0; i < monitorCounters.length; i++) {
                 monitorCounters[i] -= 0.05;
-                if(monitorCounters[i] < 0){
-                    monitors[i].material = new THREE.MeshBasicMaterial({color:monitorColors[0]})
+                if (monitorCounters[i] < 0) {
+                    monitors[i].material = new THREE.MeshBasicMaterial({ color: monitorColors[0] })
                 }
             }
+
+            if(CheckTimers()){
+                triggerMet = true;
+            }
+
+            console.log(triggerMet);
 
             requestAnimationFrame(animate);
             requestAnimationFrame(render);
         };
-        
-        //CLASSES
-        class dialogueItem{
-            constructor(text, auto){
-                this.text = text;
-                this.auto = auto
-            }
-        }
 
         init();
         animate();
 
-       
+
 
 
     </script>
@@ -445,9 +458,15 @@
     <h1 id="cursor">&#x2022;</h1>
     <p id="prompt">Interact</p>
     <div id="dialog-content"></div>
-    <audio autoplay loop class="music"><source src="/Music/Space Oddity (2015 Remaster).mp3" type="audio/mp3"></audio>
-    <audio autoplay loop class="music"><source src="/Music/Dobie Gray - Drift Away (Original Official Video).mp3" type="audio/mp3"></audio>
-    <audio id="mute-station"class="music"><source src="" type=""></audio>
+    <audio autoplay loop class="music">
+        <source src="/Music/Space Oddity (2015 Remaster).mp3" type="audio/mp3">
+    </audio>
+    <audio autoplay loop class="music">
+        <source src="/Music/Dobie Gray - Drift Away (Original Official Video).mp3" type="audio/mp3">
+    </audio>
+    <audio id="mute-station" class="music">
+        <source src="" type="">
+    </audio>
 </body>
 
 </html>
