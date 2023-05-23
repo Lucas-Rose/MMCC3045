@@ -57,11 +57,28 @@
 
         //Dialog Variables
         let dialog = [
-            new dialogueItem("<p>This is some test text, it will act as dialog from the narrator and the player character.</p>", false),
-            new dialogueItem("<p>This is <strong>another</strong> set of test text, used to test whether the dialog <strong>continues</strong> properly.</p>", true),
-            new dialogueItem("<p>The <green>last</green> set of test text <red>should</red> have shown for x amount of <blue>time</blue>, hopefully thi s works.</p>", false),
-            new dialogueItem("<p>Try using the radio underneath the <strong>far left monitor</strong> to change the radio station, cycle through to find the muted channel aswell.</p>", true)
+            new dialogueItem("<p>Good Morning Major Tom! This is ground control back on Earth, can you hear us okay?</p>", true),
+            new dialogueItem("We're glad to see you've had a good rest, and are able to continue on with the mission.</p>", true),
+            new dialogueItem("<p>The <strong>Lunar Colony</strong> we established back in '23 has been having some troubles with the Time Control team, could never seem to get the anomaly detection working, so they need your help to get the generator back up.</p>", true),
+            new dialogueItem("<p>Couple of things we need you to do as you approach the Lunar Colony.</p>", true),
+            new dialogueItem("<p>The monitors you see in front of you need to be kept <blue>blue</blue>", true),
+            new dialogueItem("<p>As they appear <red>red,</red> go ahead and touch them to turn them back to their operating colour.</p>", true),
+            new dialogueItem("<p>Keeping all the monitors blue at the same time will ensure your smooth journey towards the Lunar Colony.</p>", true),
+            new dialogueItem("<p>Great job Major Tom! Just like that.</p>", false),
+            new dialogueItem("<p>Also! Just to your left you will find your radio, give that a touch to change between your favourite intergalactic space radio stations!", true),
+            new dialogueItem("<p>Flick through all the channels to turn the radio off if you would like to do that also.</p>", true),
+            new dialogueItem("<p>Back to the mission.</p>", true),
+            new dialogueItem("<p>The Time Control team have been noticing strange things happening on the Lunar Colony</p>", false),
+            new dialogueItem("<p>They report frequent encounters of De-ja-vu, whatever the hell that means...", true),
+            new dialogueItem("<p>Reports read that astronauts are waking up in the morning, seeing events that occured yesterday happen again in the same nature, however in a different order</p>", true),
+            new dialogueItem("<p>Sounds like balogna to me...</p>", true),
+            new dialogueItem("<p>Anyway... General John still thinks its a good idea for you to go check it out, sort out the town and those labs</p>", false),
+            new dialogueItem("<p>Your ship is just about ready for the entry into the Moon's new man-made atmosphere.", true),
+            new dialogueItem("<p>Preparing final measures and checks, ensuring SS5 is ready to land.", true),
+            new dialogueItem("<p>Good luck out there Tom...</p>", false),
+
         ]
+
         let dialogTime = [5000, 5000, 5000]
         let dialogTimeIndex = 0
         let dialogIndex = 0
@@ -70,15 +87,19 @@
         //Radio Variables
         let radioIndex = 0
         let radioStations = document.getElementsByClassName('music')
+        let ambience = document.getElementsByClassName('ambience')
+
+        //SFX Variables
+        var audio;
 
         function init() {
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             DisableRadio()
-            radioStations[radioIndex].volume = 0.03
+            radioStations[radioIndex].volume = 0.1
+            ambience[0].volume = .02;
 
-            monitorTimer = Math.random() * 20;
-            console.log("Timer: " + monitorTimer);
+            //monitorTimer = Math.random() * 20;
         }
 
         $(document).ready(function () {
@@ -294,9 +315,14 @@
 
         function ChangeText() {
             if (dialogIndex >= dialog.length) {
-                return
+                EndSequence();
+                return;
             }
             if (dialog[dialogIndex].auto) {
+                audio = new Audio('/Music/radioScratch.mp3')
+                audio.volume = 0.01;
+                audio.playbackRate = 2
+                audio.play();
                 let contentBox = document.getElementById('dialog-content')
                 contentBox.innerHTML = dialog[dialogIndex].text;
                 dialogIndex++;
@@ -307,8 +333,16 @@
                     contentBox.innerHTML = dialog[dialogIndex].text;
                     dialogIndex++;
                     triggerMet = false;
+                    audio = new Audio('/Music/radioScratch.mp3')
+                    audio.volume = 0.01;
+                    audio.playbackRate = 2
+                    audio.play();
                 }
             }
+        }
+
+        function EndSequence() {
+            $("#curtain").fadeIn(5000, function(){window.location.href = "/Var1/Act3.html"})
         }
 
         //Ambient Light
@@ -434,12 +468,9 @@
                 }
             }
 
-            if(CheckTimers()){
+            if (CheckTimers()) {
                 triggerMet = true;
             }
-
-            console.log(triggerMet);
-
             requestAnimationFrame(animate);
             requestAnimationFrame(render);
         };
@@ -467,6 +498,10 @@
     <audio id="mute-station" class="music">
         <source src="" type="">
     </audio>
+    <audio autoplay loop class="ambience">
+        <source src="/Music/ambience.mp3" type="audio/mp3">
+    </audio>
+
 </body>
 
 </html>
