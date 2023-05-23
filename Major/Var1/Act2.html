@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script type="module">
+
+        //CLASSES
+        class dialogueItem {
+            constructor(text, auto) {
+                this.text = text;
+                this.auto = auto
+            }
+        }
+
+
+        //imports
+        import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+        import { PointerLockControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/PointerLockControls.js"
+        import { GLTFLoader } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js"
+
+        //Essentials
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+
+        //Raycasting
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2(0, 0);
+
+        //Movement Variables
+        const controls = new PointerLockControls(camera, document.body);
+        let cameraLock = false
+        let xSpeed = 0
+        let ySpeed = 0
+        let speed = .1
+        let lookingAt = false
+        let canMove = true
+
+        //Dialog Variables
+        let dialog = [
+            new dialogueItem("<p>Safety Protocols are a success...</p>", true),
+            new dialogueItem("<p>Welcome back to the moon Major Tom!</p>", true),
+            new dialogueItem("<p>We've received some more intel in regards to the damages to the generator on the Lunar Colony...</p>", true),
+            new dialogueItem("<p>Approximately 16 hours ago it exploded and left chunks of radioactive waste lying around the surface.", true),
+            new dialogueItem("<p>The lunar colony about 50km east have requested that you collect these chunks and dispose of them outside the moons atmosphere.</p>", true),
+            new dialogueItem("<p>To collect the radioactive material, head towards a piece and <strong>interact</strong> with it to place it in your Richter Capsule.</p>", true),
+            new dialogueItem("<p>Just like that! Now, collect the rest of the chunks and return them to your ship for later disposal.</p>", false),
+            new dialogueItem("<p>That generator sure did leave a mess, hate to be the one to have watched it explode</p>", true),
+            new dialogueItem("<p>All this toying around with the Space Time continuum is sure to cause some trouble somewhere down the line, take this for example.</p>", true),
+            new dialogueItem("<p>General John says its for a good cause though...</p>", true),
+            new dialogueItem("<p>He says that after all these years of humans destroying earth through pollution and improper resource management-</p>", true),
+            new dialogueItem("<p>Something needed to happen... So some of the worlds best scientists banded together to experiment with time alteration...</p>", false),
+            new dialogueItem("<p>They sought to use the knowledge they had accumulated over the years and apply it to the past, to ensure the long-term sustainability of the planet...</p>", true),
+            new dialogueItem("<p>Dealing with such intangible forces must be done so on the moon, away from harming any of those back on earth anymore than they're already harming themselves.", true),
+            new dialogueItem("<p>Well done Major Tom! You've collected all the radioactive material ready for disposal in the upper atmosphere.</p>", false),
+            new dialogueItem("<p>Head back to your ship and we'll prepare for exit.</p>", true),
+            new dialogueItem("<p>*Restarting Engine for SS5 Clear for Launch*", true),
+        ]
+        let dialogTime = [5000]
+        let dialogTimeIndex = 0
+        let dialogIndex = 0
+        let triggerMet = false;
+        var audio;
+
+        let collectibles = 20;
+        let collectibleInView = null;
+        let ambience = document.getElementsByClassName("ambience")
+        ambience[0].volume = .02
+
+        function init() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            console.log(scene);
+        }
+
+        $(document).ready(function () {
+            $('#prompt').hide()
+            $('#curtain').fadeOut(6000)
+            var dialogTimer = setInterval(ChangeText, dialogTime[dialogTimeIndex])
+        })
+
+        //Append 3D Models
+        {
+            const loader = new GLTFLoader();
+            loader.load('/Models/moonSurface.glb', function (gltf) {
+
+                scene.add(gltf.scene);
+                gltf.scene.position.set(0, -2, 0)
+                gltf.scene.scale.set(70, 20, 70)
+            })
+            loader.load('/Models/ship.glb', function (gltf) {
+
+                scene.add(gltf.scene);
+                gltf.scene.position.set(0, 0, 20)
+                gltf.scene.scale.set(15, 15, 15)
+            })
+
+            for(let i = 0; i < collectibles; i ++){
+                loader.load('/Models/radioactive_stone.glb', function (gltf) {
+                scene.add(gltf.scene);
+                if(i % 2 == 0){
+                    gltf.scene.position.set(-Math.random() * 60, 0, -Math.random() * 60)
+                }
+                else{
+                    gltf.scene.position.set(Math.random() * 60, 0, Math.random() * 60)
+                }
+                gltf.scene.scale.set(.5, .5, .5)
+                let geometry = new THREE.BoxGeometry(1, 1, 1);
+                let material = new THREE.MeshStandardMaterial({ color: new THREE.Color('white') });
+                let cube = new THREE.Mesh(geometry, material);
+                cube.position.set(gltf.scene.position.x, gltf.scene.position.y-1, gltf.scene.position.z - 0.5)
+                cube.name = "interactable " + (scene.children.length-1).toString()
+                cube.visible = false
+                cube.num = 10;
+                scene.add(cube)
+            })
+            }
+            
+            loader.load('/Models/earth.glb', function (gltf) {
+
+                scene.add(gltf.scene);
+                gltf.scene.position.set(0, 200, -400)
+                gltf.scene.scale.set(0.8, 0.8, 0.8)
+                gltf.scene.rotation.set(.3, 0, 0)
+                let pointLight = new THREE.PointLight(new THREE.Color('white'), 2, 500);
+                pointLight.position.set(0, 60, -300);
+                pointLight.castShadow = true
+                scene.add(pointLight);
+
+            })
+        }
+
+        //Enter Play / Click Events
+        document.body.addEventListener("click", async () => {
+            await document.body.requestPointerLock();
+            cameraLock = true
+            if(lookingAt){
+                let collectibleNum = parseInt(collectibleInView.object.name.substring(collectibleInView.object.name.length -2))
+                scene.children[collectibleNum].position.set(0, 1000, 0)
+                triggerMet = true;
+            }
+        })
+
+        //Movement Detection
+        document.onkeydown = function (e) {
+            e = e || window.event;
+            if (canMove) {
+                if (cameraLock == true) {
+                    if (e.code == "KeyW") {
+                        ySpeed = speed
+                    }
+                    if (e.code == "KeyS") {
+                        ySpeed = -speed
+                    }
+                    if (e.code == "KeyA") {
+                        xSpeed = -speed
+                    }
+                    if (e.code == "KeyD") {
+                        xSpeed = speed
+                    }
+                }
+            }
+        };
+        document.onkeyup = function (e) {
+            e = e || window.event;
+            if (canMove) {
+                if (cameraLock == true) {
+                    if (e.code == "KeyW") {
+                        if (ySpeed > 0) {
+                            ySpeed = 0
+                        }
+                        else {
+                            ySpeed = -speed
+                        }
+                    }
+                    if (e.code == "KeyS") {
+                        if (ySpeed < 0) {
+                            ySpeed = 0
+                        }
+                        else {
+                            ySpeed = speed
+                        }
+                    }
+                    if (e.code == "KeyA") {
+                        if (xSpeed < 0) {
+                            xSpeed = 0
+                        }
+                        else {
+                            xSpeed = speed
+                        }
+                    }
+                    if (e.code == "KeyD") {
+                        if (xSpeed > 0) {
+                            xSpeed = 0
+                        }
+                        else {
+                            xSpeed = -speed
+                        }
+                    }
+                }
+            }
+        };
+        function ChangeText() {
+            if (dialogIndex >= dialog.length) {
+                EndSequence();
+                return;
+            }
+            if (dialog[dialogIndex].auto) {
+                audio = new Audio('/Music/radioScratch.mp3')
+                audio.volume = 0.01;
+                audio.playbackRate = 2
+                audio.play();
+                let contentBox = document.getElementById('dialog-content')
+                contentBox.innerHTML = dialog[dialogIndex].text;
+                dialogIndex++;
+            }
+            else {
+                if (triggerMet) {
+                    let contentBox = document.getElementById('dialog-content')
+                    contentBox.innerHTML = dialog[dialogIndex].text;
+                    dialogIndex++;
+                    triggerMet = false;
+                    audio = new Audio('/Music/radioScratch.mp3')
+                    audio.volume = 0.01;
+                    audio.playbackRate = 2
+                    audio.play();
+                }
+            }
+        }
+
+        function EndSequence() {
+            $("#curtain").fadeIn(5000, function () { window.location.href = "/Var1/Act3.html" })
+        }
+
+        //Ambient Light
+        {
+            const ambientLight = new THREE.AmbientLight(new THREE.Color('white'), 3);
+            scene.add(ambientLight);
+        }
+
+        //Stars
+        {
+            function getRandomStarField(numberOfStars, width, height) {
+                var canvas = document.createElement('CANVAS');
+
+                canvas.width = width;
+                canvas.height = height;
+
+                var ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, width, height);
+
+                for (var i = 0; i < numberOfStars; ++i) {
+                    var radius = Math.random() * 2;
+                    var x = Math.floor(Math.random() * width);
+                    var y = Math.floor(Math.random() * height);
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                }
+
+                var texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+            };
+
+            var skyBox = new THREE.BoxGeometry(1500, 1200, 1500);
+            var skyBoxMaterial = new THREE.MeshBasicMaterial({
+                map: getRandomStarField(600, 2048, 2048),
+                side: THREE.BackSide
+            });
+            var sky = new THREE.Mesh(skyBox, skyBoxMaterial);
+            scene.add(sky);
+        }
+
+        //Raycasting mechanics
+        function render() {
+
+            // update the picking ray with the camera and pointer position (pointer will always be 0 regardless)
+            raycaster.setFromCamera(pointer, camera);
+
+            // calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObjects(scene.children);
+
+            for (let i = 0; i < scene.children.length; i++) {
+                if (scene.children[i].name.includes('interactable')) {
+                    if (scene.children[i].material != null) {
+                        $('#prompt').hide()
+                        lookingAt = false
+                    }
+                }
+            }
+            console.log(intersects.length)
+            for (let i = 0; i < intersects.length; i++) {
+                if (intersects[i].object.name.includes("interactable")) {
+                    $('#prompt').show()
+                    collectibleInView = intersects[i];
+                    lookingAt = true
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            controls.moveRight(xSpeed)
+            controls.moveForward(ySpeed)
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+            requestAnimationFrame(render);
+        };
+
+        init();
+        animate();
+
+
+
+
+    </script>
+</head>
+
+<body>
+    <div id="curtain"></div>
+    <h1 id="cursor">&#x2022;</h1>
+    <p id="prompt">Interact</p>
+    <div id="dialog-content"></div>
+    <audio autoplay loop class="ambience">
+        <source src="/Music/ambience.mp3" type="audio/mp3">
+    </audio>
+</body>
+
+</html>
