@@ -132,7 +132,6 @@
 
             //EARTH
             loader.load('/Models/earth.glb', function (gltf) {
-
                 scene.add(gltf.scene);
                 gltf.scene.position.set(0, 200, -400)
                 gltf.scene.scale.set(0.8, 0.8, 0.8)
@@ -141,7 +140,6 @@
                 pointLight.position.set(0, 60, -300);
                 pointLight.castShadow = true
                 scene.add(pointLight);
-
             })
         }
 
