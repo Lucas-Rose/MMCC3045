@@ -79,7 +79,7 @@
 
         ]
 
-        let dialogTime = [5000, 5000, 5000]
+        let dialogTime = [5000]
         let dialogTimeIndex = 0
         let dialogIndex = 0
         let triggerMet = false;
@@ -98,8 +98,6 @@
             DisableRadio()
             radioStations[radioIndex].volume = 0.1
             ambience[0].volume = .02;
-
-            //monitorTimer = Math.random() * 20;
         }
 
         $(document).ready(function () {
@@ -148,6 +146,7 @@
         //Append 3D Models
         {
             const loader = new GLTFLoader();
+            //MOON
             loader.load('/Models/moon.glb', function (gltf) {
 
                 scene.add(gltf.scene);
@@ -160,6 +159,7 @@
                 scene.add(pointLight);
 
             })
+            //COCKPIT
             loader.load('/Models/cockpit.glb', function (gltf) {
                 scene.add(gltf.scene);
                 gltf.scene.position.set(1.2, 0, 0.1)

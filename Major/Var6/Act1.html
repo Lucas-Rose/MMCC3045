@@ -60,11 +60,12 @@
             new dialogueItem("<p>Great Work Major Tom, that seems to have solved the problems that the Lunar Colony were facing.</p>", true),
             new dialogueItem("<p>All vital signs are operative and the generator seems to be functioning as it should be...</p>", true),
             new dialogueItem("<p>You've done our country proud Major Tom.</p>", true),
-            new dialogueItem("<p>It is with great pity that we regret to inform you the real intentions behind the mission...", false),
-            new dialogueItem("<p>During the '23 Lunar Colony, world leaders had agreed that this was mankinds final chance at continuing the human race.", true),
-            new dialogueItem("<p>That being said, for those who opposed, they were provided the opportunity to join the Lunar Colony, or to perish on earth.</p>", true),
-            new dialogueItem("<p>For those that opted to stay, meant they knew that once this mission had been completed, all life on earth would be terminated...</p>", true),
-            new dialogueItem("<p>It was a pleasure working with you Tom, stay safe out there...", false),
+            new dialogueItem("<p>Ships vital signs appear to be stable and operating on check...</p>", true),
+            new dialogueItem("<p><strong>Incoming alert! Incoming Alert!</p>", true),
+            new dialogueItem("<p>~~~ <i>Major Tom, this is General John, can you hear me alright? </i> ~~~</p>", false),
+            new dialogueItem("<p><i>There isn't much time, this broadcast will only last for so long before Ground Control retake control.</i></p>", true),
+            new dialogueItem("<p><i>I need you to turn the ship around, there isn't much time to explain but Earth isn't safe at the moment.</i></p>", true),
+            new dialogueItem("<p><i>I will explain it more on the way back to the Lunar Colony, there is no time to waste...</p>", true),
         ]
 
         let dialogTime = [5000]
@@ -86,8 +87,6 @@
             DisableRadio()
             radioStations[radioIndex].volume = 0.1
             ambience[0].volume = .02;
-
-            //monitorTimer = Math.random() * 20;
         }
 
         $(document).ready(function () {
@@ -113,6 +112,8 @@
             }
             radioStations[radioIndex].volume = 0.03
         }
+
+        //Monitor Minigame
         function ChangeColors(monitorIndex, colorIndex) {
             if (colorIndex >= monitorColors.length) {
                 console.log("colour selected out of range")
@@ -134,9 +135,11 @@
             return true
         }
 
-        const loader = new GLTFLoader();
         //Append 3D Models
+        const loader = new GLTFLoader();
         {
+
+            //EARTH
             loader.load('/Models/earth.glb', function (gltf) {
                 scene.add(gltf.scene);
                 gltf.scene.position.set(0, 60, -400)
@@ -148,6 +151,7 @@
                 scene.add(pointLight);
             })
 
+            //COCKPIT
             loader.load('/Models/cockpit.glb', function (gltf) {
                 scene.add(gltf.scene);
                 gltf.scene.position.set(1.2, 0, 0.1)
@@ -330,7 +334,7 @@
         }
 
         function EndSequence() {
-            $("#curtain").fadeIn(5000, function(){window.location.href = "/Var3/Act2.html"})
+            $("#curtain").fadeIn(5000, function(){window.location.href = "/Var6/Act2.html"})
         }
 
         //Ambient Light

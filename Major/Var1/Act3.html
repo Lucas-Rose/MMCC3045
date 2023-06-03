@@ -86,8 +86,6 @@
             DisableRadio()
             radioStations[radioIndex].volume = 0.1
             ambience[0].volume = .02;
-
-            //monitorTimer = Math.random() * 20;
         }
 
         $(document).ready(function () {
@@ -113,6 +111,8 @@
             }
             radioStations[radioIndex].volume = 0.03
         }
+
+        //Monitor Minigame
         function ChangeColors(monitorIndex, colorIndex) {
             if (colorIndex >= monitorColors.length) {
                 console.log("colour selected out of range")
@@ -134,10 +134,10 @@
             return true
         }
 
-        const loader = new GLTFLoader();
         //Append 3D Models
+        const loader = new GLTFLoader();
         {
-            
+            //EARTH
             loader.load('/Models/earth.glb', function (gltf) {
 
                 scene.add(gltf.scene);
@@ -147,10 +147,10 @@
                 let pointLight = new THREE.PointLight(new THREE.Color('white'), 2, 500);
                 pointLight.position.set(0, 60, -300);
                 pointLight.castShadow = true
-                scene.add(pointLight);
-
+                scene.add(pointLight)
             })
 
+            //COCKPIT
             loader.load('/Models/cockpit.glb', function (gltf) {
                 scene.add(gltf.scene);
                 gltf.scene.position.set(1.2, 0, 0.1)
@@ -341,7 +341,7 @@
                         gltf.scene.rotation.set(Math.PI/2, 0, 0)
                     })
                 $('#flash').fadeOut(3000, function(){
-                    $('#curtain').fadeIn(3000, function(){window.location.href = "/index.html"})
+                    $('#curtain').fadeIn(3000, function(){window.location.href = "/menu.html"})
                 })
             })
         }

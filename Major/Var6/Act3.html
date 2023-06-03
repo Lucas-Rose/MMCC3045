@@ -47,23 +47,23 @@
 
         //Dialog Variables
         let dialog = [
-            new dialogueItem("<p>Safety Protocols are a success...</p>", true),
-            new dialogueItem("<p>Welcome back to the moon Major Tom!</p>", true),
-            new dialogueItem("<p>We've received some more intel in regards to the damages to the generator on the Lunar Colony...</p>", true),
-            new dialogueItem("<p>Approximately 16 hours ago it exploded and left chunks of radioactive waste lying around the surface.", true),
-            new dialogueItem("<p>The lunar colony about 50km east have requested that you collect these chunks and dispose of them outside the moons atmosphere.</p>", true),
-            new dialogueItem("<p>To collect the radioactive material, head towards a piece and <strong>interact</strong> with it to place it in your Richter Capsule.</p>", true),
-            new dialogueItem("<p>Just like that! Now, collect the rest of the chunks and return them to your ship for later disposal.</p>", true),
-            new dialogueItem("<p>That generator sure did leave a mess, hate to be the one to have watched it explode</p>", true),
-            new dialogueItem("<p>All this toying around with the Space Time continuum is sure to cause some trouble somewhere down the line, take this for example.</p>", true),
-            new dialogueItem("<p>General John says its for a good cause though...</p>", true),
-            new dialogueItem("<p>He says that after all these years of humans destroying earth through pollution and improper resource management-</p>", true),
-            new dialogueItem("<p>Something needed to happen... So some of the worlds best scientists banded together to experiment with time alteration...</p>", true),
-            new dialogueItem("<p>They sought to use the knowledge they had accumulated over the years and apply it to the past, to ensure the long-term sustainability of the planet...</p>", true),
-            new dialogueItem("<p>Dealing with such intangible forces must be done so on the moon, away from harming any of those back on earth anymore than they're already harming themselves.", true),
-            new dialogueItem("<p>Well done Major Tom! You've collected all the radioactive material ready for disposal in the upper atmosphere.</p>", true),
-            new dialogueItem("<p>Head back to your ship and we'll prepare for exit.</p>", true),
-            new dialogueItem("<p>*Restarting Engine for SS5 Clear for Launch*", true),
+            new dialogueItem("<p><i>Landing protocols are a success...</i></p>", true),
+            new dialogueItem("<p><i>It's just you and I now Major Tom</i></p>", true),
+            new dialogueItem("<p><i>It's time I become more honest about what's been happening with this mission...</i></p>", true),
+            new dialogueItem("<p><i>The goal behind your mission reinstating the Lunar Colony was to develop a more sustainable base for mankind on our only moon</i></p>", true),
+            new dialogueItem("<p><i>This being said, there are still many drawbacks that this would have on the societal and ecological impact on Earth as the Lunar Colony would continue to prosper...</i></p>", true),
+            new dialogueItem("<p><i>Over time, the materials in which the Lunar Colony have been provided will be of no use. Technological advancements made by the team of scientists will surpass-</i></p>", true),
+            new dialogueItem("<p><i>the access to the materials that they need to perform these technological feats.</i></p>", true),
+            new dialogueItem("<p><i>Time Travel is no Rocket Science I can tell you that much</i></p>", true),
+            new dialogueItem("<p><i>It's been something I've worked on for a while now and I think it's worth telling you what it is...</i></p>", true),
+            new dialogueItem("<p><i>Over a long time I've been in communications with the Lunar Colony scientists and this advancement in technology has occurred far sooner than they anticipated.</i></p>", true),
+            new dialogueItem("<p><i>As the materials that they need do not come at a cheap price, the development of the Time Travel Engine came to a halt.</i></p>", true),
+            new dialogueItem("<p><i>That's where your mission came along...</i></p>", true),
+            new dialogueItem("<p><i>You're the perfect man for the job, Major Tom.</i></p>", true),
+            new dialogueItem("<p><i>I think you have what it takes to lead these people and reboot the human race to learn from our mistakes</i></p>", true),
+            new dialogueItem("<p><i>A lot now rides on your shoulders Major Tom, but I know you'll be just fine...</i></p>", true),
+            new dialogueItem("<p><i>Before I go, give your planet a good look...</i></p>", true),
+            new dialogueItem("<p><i>So long Tom...</i></p>", true),
         ]
         let dialogTime = [5000]
         let dialogTimeIndex = 0
@@ -71,8 +71,6 @@
         let triggerMet = false;
         var audio;
 
-        let collectibles = 20;
-        let collectibleInView = null;
         let ambience = document.getElementsByClassName("ambience")
         ambience[0].volume = .02
 
@@ -88,23 +86,25 @@
             $('#curtain').fadeOut(6000)
             var dialogTimer = setInterval(ChangeText, dialogTime[dialogTimeIndex])
         })
+
+         //Append 3D Models
         const loader = new GLTFLoader();
-        //Append 3D Models
         {
-            
+            //MOON
             loader.load('/Models/moonSurface.glb', function (gltf) {
 
                 scene.add(gltf.scene);
                 gltf.scene.position.set(0, -2, 0)
                 gltf.scene.scale.set(70, 20, 70)
             })
+            //SHIP
             loader.load('/Models/ship.glb', function (gltf) {
 
                 scene.add(gltf.scene);
                 gltf.scene.position.set(0, 0, 20)
                 gltf.scene.scale.set(15, 15, 15)
             })
-            
+            //EARTH
             loader.load('/Models/earth.glb', function (gltf) {
 
                 scene.add(gltf.scene);
@@ -279,10 +279,6 @@
 
         init();
         animate();
-
-
-
-
     </script>
 </head>
 
