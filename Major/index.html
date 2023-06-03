@@ -9,46 +9,7 @@
     <script>
         $(document).ready(function () {
             $('#playButton').click(function(){
-                let box1 = document.getElementById("box1").innerText
-                let box2 = document.getElementById("box2").innerText
-                let box3 = document.getElementById("box3").innerText
-                if(box1 == box2 || box1 == box3 || box2 == box3){
-                    alert("Invalid Time Order!")
-                }
-                else{
-                    window.location.href = "/Var1/Act1.html"
-                }
-                
-            })
-            $('#box1').click(function(){
-                let num = parseInt(document.getElementById("box1").innerText);
-                if(num + 1 == 4){
-                    num = 1;
-                }
-                else{
-                    num += 1;
-                }
-                document.getElementById("box1").innerHTML = "<h1>" + num + "</h1>";
-            })
-            $('#box2').click(function(){
-                let num = parseInt(document.getElementById("box2").innerText);
-                if(num + 1 == 4){
-                    num = 1;
-                }
-                else{
-                    num += 1;
-                }
-                document.getElementById("box2").innerHTML = "<h1>" + num + "</h1>";
-            })
-            $('#box3').click(function(){
-                let num = parseInt(document.getElementById("box3").innerText);
-                if(num + 1 == 4){
-                    num = 1;
-                }
-                else{
-                    num += 1;
-                }
-                document.getElementById("box3").innerHTML = "<h1>" + num + "</h1>";
+                window.location.href = "/Var1/Act1.html"
             })
         })
 
@@ -59,9 +20,9 @@
     <div id="mainBG">
         <h1>Major Tom</h1>
         <div id="orderContainer">
-            <div id="box1" class="box"><h1>1</h1></div>
-            <div id="box2" class="box"><h1>2</h1></div>
-            <div id="box3" class="box"><h1>3</h1></div>
+            <div class="box"><h1>1</h1></div>
+            <div class="box"><h1>2</h1></div>
+            <div class="box"><h1>3</h1></div>
         </div>
         <div id="playButton"><h1>Play</h1></div>
     </div>

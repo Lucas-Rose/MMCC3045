@@ -77,11 +77,12 @@ h1{
 #playButton{
     width:20%;
     height:10%;
-    background-color:white;
+    background-color:rgb(211, 255, 173);
     position:absolute;
     left:50%;
     top:75%;
     transform:translate(-50%, -50%);
+    border-radius:30px;
 }
 .box{
     width:5%;
@@ -90,15 +91,19 @@ h1{
     position:absolute;
     top:55%;
     transform:translate(-50%, -50%);
+    border-radius: 45px;
 }
 #box1{
     left:33%;
+    cursor:pointer;
 }
 #box2{
     left:50%;
+    cursor:pointer;
 }
 #box3{
     left:66%;
+    cursor:pointer;
 }
 .box h1{
     font-size: xx-large;
@@ -116,4 +121,15 @@ h1{
 }
 #playButton :hover{
     cursor:pointer;
+}
+#note{
+    position:absolute;
+    width:100px;
+    height:175px;
+    background-color:rgb(234, 241, 142);
+    top:5%;
+    left:3%;
+    padding:20px;
+    border-radius:30px;
+    font-family: 'Courier New', Courier, monospace;
 }
